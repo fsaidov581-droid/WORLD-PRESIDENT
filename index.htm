@@ -1,0 +1,2739 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WORLD PRESIDENT — 2D</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    font-family:Arial,sans-serif;
+    background:#06111c;
+    color:#fff;
+    overflow:hidden
+}
+
+button{
+    cursor:pointer;
+    color:#fff;
+    border:0
+}
+
+.app{
+    height:100%;
+    display:flex;
+    flex-direction:column
+}
+
+header{
+    height:68px;
+    background:#0b1826;
+    border-bottom:1px solid #20384d;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    z-index:5
+}
+
+.logo{
+    font-weight:900;
+    font-size:20px
+}
+
+.logo span{
+    color:#35a7ff
+}
+
+.stats{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap
+}
+
+.stat{
+    background:#122335;
+    border:1px solid #28445a;
+    padding:8px 11px;
+    border-radius:9px;
+    font-size:12px
+}
+
+.stat b{
+    color:#69c0ff
+}
+
+.main{
+    display:flex;
+    flex:1;
+    min-height:0
+}
+
+.side{
+    width:285px;
+    background:#091724;
+    border-right:1px solid #20384d;
+    padding:14px;
+    overflow:auto
+}
+
+.card{
+    background:#0f2030;
+    border:1px solid #274157;
+    border-radius:13px;
+    padding:13px;
+    margin-bottom:12px
+}
+
+.muted{
+    color:#8ea6ba;
+    font-size:12px
+}
+
+.name{
+    font-size:19px;
+    font-weight:800;
+    margin-top:3px
+}
+
+.role{
+    display:inline-block;
+    margin-top:7px;
+    padding:5px 8px;
+    border-radius:7px;
+    background:#163b5d;
+    color:#70c5ff;
+    font-size:12px
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 0;
+    border-bottom:1px solid #203548;
+    font-size:13px
+}
+
+.row:last-child{
+    border:0
+}
+
+.menu{
+    display:grid;
+    gap:7px;
+    margin-bottom:12px
+}
+
+.menu button,
+.action{
+    background:#12283a;
+    border:1px solid #2a465c;
+    border-radius:9px;
+    padding:10px;
+    text-align:left
+}
+
+.menu button:hover,
+.action:hover{
+    background:#193b56
+}
+
+.action{
+    width:100%;
+    margin-top:7px;
+    text-align:center;
+    background:#087fe0;
+    font-weight:700
+}
+
+.map{
+    position:relative;
+    flex:1;
+    min-width:0;
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #153b53,
+            #06121d 70%
+        );
+    overflow:hidden
+}
+
+.mapbar{
+    position:absolute;
+    top:14px;
+    left:14px;
+    right:14px;
+    z-index:3;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none
+}
+
+.pill{
+    background:#091724ef;
+    border:1px solid #29465c;
+    border-radius:10px;
+    padding:9px 12px;
+    pointer-events:auto
+}
+
+.tools{
+    display:flex;
+    gap:5px
+}
+
+.tools button{
+    width:38px;
+    height:38px;
+    border-radius:8px;
+    background:#0b1b2a;
+    border:1px solid #29465c;
+    font-size:18px
+}
+
+.country{
+    fill:#19384d;
+    stroke:#7893a6;
+    stroke-width:.5;
+    vector-effect:non-scaling-stroke;
+    cursor:pointer;
+    transition:.12s
+}
+
+.country:hover{
+    fill:#2b628a
+}
+
+.country.mine{
+    fill:#13855c
+}
+
+.country.busy{
+    fill:#663b3b
+}
+
+/* НАЗВАНИЯ СТРАН */
+
+.country-label{
+    fill:#fff;
+    font-size:8px;
+    font-weight:800;
+    text-anchor:middle;
+    dominant-baseline:middle;
+    pointer-events:auto;
+    cursor:pointer;
+
+    paint-order:stroke;
+    stroke:#06111c;
+    stroke-width:3px;
+    stroke-linejoin:round
+}
+
+.country-label.small{
+    font-size:6px
+}
+
+.country-label.big{
+    font-size:10px
+}
+
+.info{
+    display:none;
+    position:absolute;
+    right:16px;
+    bottom:16px;
+    width:300px;
+    background:#0a1725f5;
+    border:1px solid #31516a;
+    border-radius:15px;
+    padding:16px;
+    z-index:4;
+    box-shadow:0 20px 60px #0009
+}
+
+.info.show{
+    display:block
+}
+
+.info h2{
+    margin:0 0 3px
+}
+
+.btn{
+    width:100%;
+    padding:11px;
+    border-radius:9px;
+    background:#0784e8;
+    font-weight:800;
+    margin-top:10px
+}
+
+.btn:disabled{
+    background:#314451;
+    color:#9aabb6
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:#0009;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:20
+}
+
+.modal.show{
+    display:flex
+}
+
+.box{
+    width:min(480px,92vw);
+    max-height:90vh;
+    overflow:auto;
+    background:#0c1c2b;
+    border:1px solid #31516a;
+    border-radius:16px;
+    padding:20px
+}
+
+.close{
+    float:right;
+    background:transparent;
+    font-size:25px;
+    color:#9db0bf
+}
+
+.input{
+    width:100%;
+    padding:11px;
+    margin-top:12px;
+    border-radius:8px;
+    border:1px solid #345169;
+    background:#07131f;
+    color:#fff
+}
+
+.stars{
+    font-size:25px;
+    margin-top:7px
+}
+
+.factoryGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:10px
+}
+
+.factory{
+    padding:10px;
+    border-radius:9px;
+    background:#112638;
+    border:1px solid #29465b
+}
+
+.factory small{
+    color:#8ea6b8;
+    display:block;
+    margin-top:4px
+}
+
+.loading{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+    background:#06111cee
+}
+
+.loading div{
+    text-align:center
+}
+
+.error{
+    color:#ff8181;
+    margin-top:8px;
+    font-size:13px
+}
+
+@media(max-width:800px){
+
+    header{
+        height:auto;
+        min-height:65px;
+        padding:9px;
+        align-items:flex-start
+    }
+
+    .logo{
+        font-size:15px
+    }
+
+    .stats .stat:nth-child(n+4){
+        display:none
+    }
+
+    .side{
+        width:230px
+    }
+
+    .info{
+        left:10px;
+        right:10px;
+        width:auto
+    }
+}
+
+@media(max-width:600px){
+
+    .main{
+        flex-direction:column
+    }
+
+    .side{
+        width:100%;
+        max-height:330px;
+        border-right:0;
+        border-bottom:1px solid #20384d
+    }
+
+    .map{
+        height:520px;
+        min-height:520px
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+
+<div class="logo">
+🌍 WORLD <span>PRESIDENT</span>
+</div>
+
+<div class="stats">
+
+<div class="stat">
+💰 <b id="money">0</b>
+</div>
+
+<div class="stat">
+👥 <b id="pop">0</b>
+</div>
+
+<div class="stat">
+😊 <b id="happy">70%</b>
+</div>
+
+<div class="stat">
+⭐ <b id="rating">5/5</b>
+</div>
+
+<div class="stat">
+📅 День <b id="day">1</b>
+</div>
+
+</div>
+
+</header>
+
+
+<div class="main">
+
+
+<aside class="side">
+
+<div class="card">
+
+<div class="muted">
+ИГРОК
+</div>
+
+<div class="name" id="player">
+Новый игрок
+</div>
+
+<div class="role" id="role">
+Обычный гражданин
+</div>
+
+</div>
+
+
+<div class="menu">
+
+<button onclick="startGame()">
+👤 Ввести имя
+</button>
+
+<button onclick="economy()">
+💰 Экономика
+</button>
+
+<button onclick="factories()">
+🏭 Заводы
+</button>
+
+<button onclick="events()">
+🎉 Мероприятия
+</button>
+
+<button onclick="army()">
+🪖 Армия
+</button>
+
+<button onclick="nextDay()">
+🌅 Завершить день
+</button>
+
+</div>
+
+
+<div class="card">
+
+<b>🏛️ Моё государство</b>
+
+<div class="row">
+<span>Страна</span>
+<b id="myCountry">Нет</b>
+</div>
+
+<div class="row">
+<span>Президент</span>
+<b id="president">Свободно</b>
+</div>
+
+<div class="row">
+<span>Доход/день</span>
+<b id="income">$0</b>
+</div>
+
+<div class="row">
+<span>Расходы/день</span>
+<b id="expense">$0</b>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<b>🏭 Ресурсы</b>
+
+<div class="row">
+<span>💧 Вода</span>
+<b id="water">100</b>
+</div>
+
+<div class="row">
+<span>⚡ Электричество</span>
+<b id="electricity">100</b>
+</div>
+
+<div class="row">
+<span>🛢️ Нефть</span>
+<b id="oil">20</b>
+</div>
+
+<div class="row">
+<span>🪨 Камень</span>
+<b id="stone">100</b>
+</div>
+
+<div class="row">
+<span>🌲 Дерево</span>
+<b id="wood">100</b>
+</div>
+
+<div class="row">
+<span>🥫 Еда</span>
+<b id="food">100</b>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<b>⭐ Рейтинг</b>
+
+<div class="stars" id="stars">
+⭐⭐⭐⭐⭐
+</div>
+
+<div class="muted">
+При 0/5 президент теряет должность.
+</div>
+
+</div>
+
+</aside>
+
+
+<section class="map">
+
+
+<div class="mapbar">
+
+<div class="pill">
+🌍 <b>КАРТА МИРА</b> · нажми на страну
+</div>
+
+<div class="tools">
+
+<button onclick="zoom(1.2)">
++
+</button>
+
+<button onclick="zoom(.83)">
+−
+</button>
+
+<button onclick="resetZoom()">
+⌂
+</button>
+
+</div>
+
+</div>
+
+
+<div class="loading" id="loading">
+
+<div>
+
+🌍
+
+<br>
+
+<b>
+Загружаем настоящие границы стран…
+</b>
+
+<div class="muted">
+Источник геометрии — Natural Earth
+</div>
+
+<div class="error" id="loadError"></div>
+
+</div>
+
+</div>
+
+
+<svg
+id="svg"
+viewBox="0 0 1000 560"
+preserveAspectRatio="xMidYMid meet">
+</svg>
+
+
+<div class="info" id="info">
+
+<button
+class="close"
+onclick="hideInfo()">
+×
+</button>
+
+<h2 id="cname">
+Страна
+</h2>
+
+<div
+class="muted"
+id="ccode">
+</div>
+
+<div class="row">
+<span>👑 Президент</span>
+<b id="cpres">Свободно</b>
+</div>
+
+<div class="row">
+<span>💰 Бюджет</span>
+<b id="cmoney">$0</b>
+</div>
+
+<div class="row">
+<span>👥 Население</span>
+<b id="cpop">0</b>
+</div>
+
+<div class="row">
+<span>😊 Счастье</span>
+<b id="chappy">70%</b>
+</div>
+
+<button
+class="btn"
+id="claim"
+onclick="claimPresident()">
+👑 Стать президентом
+</button>
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+
+<div class="modal" id="modal">
+
+<div class="box">
+
+<button
+class="close"
+onclick="closeModal()">
+×
+</button>
+
+<div id="modalBody"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   КАРТА
+===================================================== */
+
+const MAP_URL =
+'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+
+
+/* =====================================================
+   НАЗВАНИЯ СТРАН
+===================================================== */
+
+const names={
+
+TJ:'Таджикистан',
+UZ:'Узбекистан',
+KZ:'Казахстан',
+KG:'Кыргызстан',
+
+RU:'Россия',
+CN:'Китай',
+IN:'Индия',
+
+US:'США',
+CA:'Канада',
+BR:'Бразилия',
+MX:'Мексика',
+
+DE:'Германия',
+FR:'Франция',
+GB:'Великобритания',
+ES:'Испания',
+IT:'Италия',
+
+TR:'Турция',
+JP:'Япония',
+KR:'Южная Корея',
+
+AU:'Австралия',
+NZ:'Новая Зеландия',
+
+SA:'Саудовская Аравия',
+AE:'ОАЭ',
+EG:'Египет',
+ZA:'ЮАР',
+
+NG:'Нигерия',
+PK:'Пакистан',
+ID:'Индонезия',
+TH:'Таиланд',
+VN:'Вьетнам',
+MY:'Малайзия',
+SG:'Сингапур',
+
+SE:'Швеция',
+NO:'Норвегия',
+FI:'Финляндия',
+NL:'Нидерланды',
+CH:'Швейцария',
+
+PL:'Польша',
+UA:'Украина',
+AZ:'Азербайджан',
+GE:'Грузия',
+
+AR:'Аргентина',
+CL:'Чили',
+CO:'Колумбия',
+PE:'Перу',
+
+AF:'Афганистан',
+AL:'Албания',
+DZ:'Алжир',
+AO:'Ангола',
+AT:'Австрия',
+BH:'Бахрейн',
+BD:'Бангладеш',
+BY:'Беларусь',
+BE:'Бельгия',
+BZ:'Белиз',
+BJ:'Бенин',
+BO:'Боливия',
+BA:'Босния и Герцеговина',
+BW:'Ботсвана',
+BG:'Болгария',
+BF:'Буркина-Фасо',
+BI:'Бурунди',
+KH:'Камбоджа',
+CM:'Камерун',
+CF:'ЦАР',
+TD:'Чад',
+CG:'Конго',
+CD:'ДР Конго',
+CR:'Коста-Рика',
+CI:'Кот-д’Ивуар',
+HR:'Хорватия',
+CU:'Куба',
+CY:'Кипр',
+CZ:'Чехия',
+DK:'Дания',
+DJ:'Джибути',
+DO:'Доминиканская Республика',
+EC:'Эквадор',
+SV:'Сальвадор',
+ER:'Эритрея',
+EE:'Эстония',
+ET:'Эфиопия',
+FJ:'Фиджи',
+GH:'Гана',
+GR:'Греция',
+GT:'Гватемала',
+GN:'Гвинея',
+GY:'Гайана',
+HT:'Гаити',
+HN:'Гондурас',
+HU:'Венгрия',
+IS:'Исландия',
+IQ:'Ирак',
+IE:'Ирландия',
+IL:'Израиль',
+JM:'Ямайка',
+JO:'Иордания',
+KE:'Кения',
+KW:'Кувейт',
+LV:'Латвия',
+LB:'Ливан',
+LR:'Либерия',
+LY:'Ливия',
+LT:'Литва',
+LU:'Люксембург',
+MG:'Мадагаскар',
+MW:'Малави',
+ML:'Мали',
+MT:'Мальта',
+MR:'Мавритания',
+MU:'Маврикий',
+MD:'Молдова',
+MN:'Монголия',
+ME:'Черногория',
+MA:'Марокко',
+MZ:'Мозамбик',
+MM:'Мьянма',
+NA:'Намибия',
+NP:'Непал',
+NI:'Никарагуа',
+NE:'Нигер',
+KP:'Северная Корея',
+MK:'Северная Македония',
+OM:'Оман',
+PA:'Панама',
+PG:'Папуа — Новая Гвинея',
+PY:'Парагвай',
+PH:'Филиппины',
+PT:'Португалия',
+QA:'Катар',
+RO:'Румыния',
+RW:'Руанда',
+SN:'Сенегал',
+RS:'Сербия',
+SL:'Сьерра-Леоне',
+SK:'Словакия',
+SI:'Словения',
+SO:'Сомали',
+SS:'Южный Судан',
+LK:'Шри-Ланка',
+SD:'Судан',
+SR:'Суринам',
+CH:'Швейцария',
+SY:'Сирия',
+TW:'Тайвань',
+TZ:'Танзания',
+TG:'Того',
+TN:'Тунис',
+TM:'Туркменистан',
+UG:'Уганда',
+UY:'Уругвай',
+VE:'Венесуэла',
+YE:'Йемен',
+ZM:'Замбия',
+ZW:'Зимбабве'
+
+};
+
+
+/* =====================================================
+   НАСЕЛЕНИЕ
+===================================================== */
+
+const defaultPop={
+
+TJ:10500000,
+UZ:37000000,
+KZ:20000000,
+KG:7100000,
+RU:144000000,
+CN:1410000000,
+IN:1430000000,
+US:340000000,
+DE:84000000,
+FR:68000000,
+GB:69000000,
+JP:123000000,
+TR:86000000,
+AU:27000000,
+CA:41000000,
+BR:216000000,
+MX:130000000
+
+};
+
+
+/* =====================================================
+   ИГРА
+===================================================== */
+
+let game =
+JSON.parse(
+localStorage.getItem('WP_ONEFILE') || 'null'
+)
+||
+{
+    name:'',
+    role:'citizen',
+    country:null,
+
+    day:1,
+
+    money:100000,
+
+    happy:70,
+
+    rating:5,
+
+    income:0,
+
+    expense:0,
+
+    res:{
+        water:100,
+        electricity:100,
+        oil:20,
+        stone:100,
+        wood:100,
+        food:100
+    },
+
+    countries:{}
+};
+
+
+let geo=null;
+
+let selected=null;
+
+let scale=1;
+
+let offsetX=0;
+
+let offsetY=0;
+
+
+/* =====================================================
+   ФОРМАТ
+===================================================== */
+
+function fmt(n){
+
+    return Number(n || 0)
+        .toLocaleString('ru-RU');
+
+}
+
+
+function cash(n){
+
+    return '$'+fmt(n);
+
+}
+
+
+/* =====================================================
+   СОХРАНЕНИЕ
+===================================================== */
+
+function save(){
+
+    localStorage.setItem(
+        'WP_ONEFILE',
+        JSON.stringify(game)
+    );
+
+}
+
+
+/* =====================================================
+   РОЛЬ
+===================================================== */
+
+function roleName(){
+
+    return game.role === 'president'
+        ? 'Президент'
+        : 'Обычный гражданин';
+
+}
+
+
+/* =====================================================
+   ДАННЫЕ СТРАНЫ
+===================================================== */
+
+function countryData(code,feature){
+
+    if(!game.countries[code]){
+
+        let p =
+            feature?.properties?.POP_EST
+            ||
+            defaultPop[code]
+            ||
+            1000000;
+
+        game.countries[code]={
+
+            name:
+                names[code]
+                ||
+                feature?.properties?.NAME_RU
+                ||
+                feature?.properties?.NAME
+                ||
+                feature?.properties?.ADMIN
+                ||
+                'Страна',
+
+            population:p,
+
+            money:
+                Math.max(
+                    1000000,
+                    Math.round(p/2)
+                ),
+
+            happiness:70,
+
+            president:null,
+
+            owner:null,
+
+            rating:5,
+
+            factories:{
+
+                water:0,
+                electricity:0,
+                oil:0,
+                stone:0,
+                wood:0,
+                food:0,
+
+                steel:0,
+                aluminum:0,
+                fuel:0,
+
+                car:0,
+                military:0,
+                aviation:0
+
+            }
+
+        };
+
+    }
+
+    return game.countries[code];
+
+}
+
+
+/* =====================================================
+   UI
+===================================================== */
+
+function ui(){
+
+    document.getElementById('player')
+        .textContent =
+        game.name || 'Новый игрок';
+
+
+    document.getElementById('role')
+        .textContent =
+        roleName();
+
+
+    document.getElementById('money')
+        .textContent =
+        cash(game.money);
+
+
+    document.getElementById('pop')
+        .textContent =
+        fmt(
+            game.country
+            ? game.countries[game.country]?.population
+            : 0
+        );
+
+
+    document.getElementById('happy')
+        .textContent =
+        game.happy+'%';
+
+
+    document.getElementById('rating')
+        .textContent =
+        game.rating+'/5';
+
+
+    document.getElementById('day')
+        .textContent =
+        game.day;
+
+
+    document.getElementById('myCountry')
+        .textContent =
+        game.country
+        ?
+        (
+            game.countries[game.country]?.name
+            ||
+            game.country
+        )
+        :
+        'Нет';
+
+
+    document.getElementById('president')
+        .textContent =
+        game.country
+        ?
+        (
+            game.countries[game.country]
+                .president
+            ||
+            'Свободно'
+        )
+        :
+        'Свободно';
+
+
+    document.getElementById('income')
+        .textContent =
+        cash(game.income);
+
+
+    document.getElementById('expense')
+        .textContent =
+        cash(game.expense);
+
+
+    for(
+        const k of
+        [
+            'water',
+            'electricity',
+            'oil',
+            'stone',
+            'wood',
+            'food'
+        ]
+    ){
+
+        document.getElementById(k)
+            .textContent =
+            game.res[k];
+
+    }
+
+
+    document.getElementById('stars')
+        .textContent =
+        '⭐'.repeat(
+            Math.max(0,game.rating)
+        )
+        +
+        '☆'.repeat(
+            5-Math.max(0,game.rating)
+        );
+
+}
+
+
+/* =====================================================
+   ИМЯ
+===================================================== */
+
+function startGame(){
+
+    show(`
+
+        <h2>👤 Игрок</h2>
+
+        <p class="muted">
+            Введи имя.
+            Затем нажми на свободную страну
+            на карте.
+        </p>
+
+        <input
+            id="nameInput"
+            class="input"
+            maxlength="20"
+            placeholder="Твоё имя"
+            value="${game.name || ''}"
+        >
+
+        <button
+            class="btn"
+            onclick="saveName()">
+
+            🚀 Сохранить
+
+        </button>
+
+    `);
+
+}
+
+
+function saveName(){
+
+    let n =
+        document
+        .getElementById('nameInput')
+        .value
+        .trim();
+
+    if(!n){
+
+        return alert(
+            'Введи имя.'
+        );
+
+    }
+
+    game.name=n;
+
+    save();
+
+    ui();
+
+    closeModal();
+
+}
+
+
+/* =====================================================
+   МОДАЛКА
+===================================================== */
+
+function show(s){
+
+    document.getElementById('modalBody')
+        .innerHTML=s;
+
+    document.getElementById('modal')
+        .classList.add('show');
+
+}
+
+
+function closeModal(){
+
+    document.getElementById('modal')
+        .classList.remove('show');
+
+}
+
+
+/* =====================================================
+   КОД СТРАНЫ
+===================================================== */
+
+function featureCode(f){
+
+    let p=f.properties || {};
+
+    return String(
+        p.ISO_A2
+        ||
+        p.iso_a2
+        ||
+        p.ADM0_A3
+        ||
+        p.adm0_a3
+        ||
+        ''
+    ).toUpperCase();
+
+}
+
+
+/* =====================================================
+   ПРОЕКЦИЯ
+===================================================== */
+
+function project(lon,lat){
+
+    let x =
+        (lon+180)/360*1000;
+
+    let y =
+        (90-lat)/180*560;
+
+    return [
+
+        x*scale+offsetX,
+
+        y*scale+offsetY
+
+    ];
+
+}
+
+
+/* =====================================================
+   PATH
+===================================================== */
+
+function pathFromCoords(rings){
+
+    return rings
+        .map(r=>{
+
+            return r
+                .map((p,i)=>{
+
+                    let q =
+                        project(
+                            p[0],
+                            p[1]
+                        );
+
+                    return (
+                        i
+                        ? 'L '
+                        : 'M '
+                    )
+                    +
+                    q[0].toFixed(2)
+                    +
+                    ' '
+                    +
+                    q[1].toFixed(2);
+
+                })
+                .join(' ')
+
+                +
+                ' Z';
+
+        })
+        .join(' ');
+
+}
+
+
+/* =====================================================
+   ЦЕНТР СТРАНЫ
+===================================================== */
+
+function getCountryCenter(feature){
+
+    const g=feature.geometry;
+
+    if(!g)return null;
+
+    let points=[];
+
+
+    function collect(coords){
+
+        if(!Array.isArray(coords))
+            return;
+
+
+        if(
+            coords.length>=2
+            &&
+            typeof coords[0]==='number'
+            &&
+            typeof coords[1]==='number'
+        ){
+
+            points.push([
+                coords[0],
+                coords[1]
+            ]);
+
+            return;
+
+        }
+
+
+        coords.forEach(collect);
+
+    }
+
+
+    collect(g.coordinates);
+
+
+    if(!points.length)
+        return null;
+
+
+    /*
+       Более точные позиции
+       для важных стран
+    */
+
+    const code =
+        featureCode(feature);
+
+
+    const special={
+
+        RU:[90,60],
+
+        KZ:[68,48],
+
+        TJ:[71,38.8],
+
+        UZ:[64,41.5],
+
+        KG:[74.7,41.3],
+
+        CN:[104,35],
+
+        IN:[79,22],
+
+        US:[-100,38],
+
+        CA:[-106,57],
+
+        BR:[-53,-10],
+
+        AU:[134,-25],
+
+        DE:[10,51],
+
+        FR:[2,46],
+
+        ES:[-4,40],
+
+        IT:[12,42],
+
+        GB:[-3,55],
+
+        TR:[35,39],
+
+        JP:[138,37],
+
+        KR:[127.8,36],
+
+        PK:[69,30],
+
+        IR:[53,32],
+
+        SA:[45,24],
+
+        EG:[30,27],
+
+        ZA:[25,-29],
+
+        MX:[-102,23],
+
+        AR:[-64,-35],
+
+        CL:[-71,-30],
+
+        CO:[-74,4],
+
+        PE:[-75,-10],
+
+        NZ:[174,-41],
+
+        ID:[118,-2],
+
+        TH:[101,15],
+
+        VN:[108,16],
+
+        PH:[122,12],
+
+        MY:[102,4],
+
+        SE:[16,62],
+
+        NO:[9,62],
+
+        FI:[26,64],
+
+        PL:[19,52],
+
+        UA:[32,49],
+
+        AZ:[47.5,40.2],
+
+        GE:[43.5,42],
+
+        AE:[54,24]
+
+    };
+
+
+    if(special[code]){
+
+        return special[code];
+
+    }
+
+
+    /*
+       Остальные страны:
+       средняя координата
+    */
+
+    let lon=0;
+
+    let lat=0;
+
+
+    points.forEach(p=>{
+
+        lon+=p[0];
+
+        lat+=p[1];
+
+    });
+
+
+    lon/=points.length;
+
+    lat/=points.length;
+
+
+    return [
+        lon,
+        lat
+    ];
+
+}
+
+
+/* =====================================================
+   РИСОВАНИЕ КАРТЫ
+===================================================== */
+
+function draw(){
+
+    const svg =
+        document.getElementById('svg');
+
+    svg.innerHTML='';
+
+    if(!geo)return;
+
+
+    geo.features.forEach(f=>{
+
+        let g=f.geometry;
+
+        if(!g)return;
+
+
+        let d='';
+
+
+        if(g.type==='Polygon'){
+
+            d=
+                pathFromCoords(
+                    g.coordinates
+                );
+
+        }
+
+
+        if(g.type==='MultiPolygon'){
+
+            d =
+                g.coordinates
+                .map(x=>
+                    pathFromCoords(x)
+                )
+                .join(' ');
+
+        }
+
+
+        if(!d)return;
+
+
+        const code =
+            featureCode(f);
+
+
+        /*
+           СТРАНА
+        */
+
+        let p =
+            document.createElementNS(
+                'http://www.w3.org/2000/svg',
+                'path'
+            );
+
+
+        p.setAttribute(
+            'd',
+            d
+        );
+
+
+        p.classList.add(
+            'country'
+        );
+
+
+        p.dataset.code=code;
+
+
+        p.addEventListener(
+            'click',
+            ()=>{
+                select(code,f);
+            }
+        );
+
+
+        svg.appendChild(p);
+
+
+        /*
+           НАЗВАНИЕ
+        */
+
+        const center =
+            getCountryCenter(f);
+
+
+        if(center){
+
+            const pos =
+                project(
+                    center[0],
+                    center[1]
+                );
+
+
+            const text =
+                names[code]
+                ||
+                f.properties?.NAME_RU
+                ||
+                f.properties?.NAME
+                ||
+                f.properties?.ADMIN
+                ||
+                code;
+
+
+            const label =
+                document.createElementNS(
+                    'http://www.w3.org/2000/svg',
+                    'text'
+                );
+
+
+            label.setAttribute(
+                'x',
+                pos[0]
+            );
+
+
+            label.setAttribute(
+                'y',
+                pos[1]
+            );
+
+
+            label.textContent=text;
+
+
+            label.classList.add(
+                'country-label'
+            );
+
+
+            /*
+               Маленькие страны
+            */
+
+            if(text.length>12){
+
+                label.classList.add(
+                    'small'
+                );
+
+            }
+
+
+            /*
+               Большие страны
+            */
+
+            if(
+                [
+                    'RU',
+                    'CN',
+                    'US',
+                    'CA',
+                    'BR',
+                    'AU',
+                    'IN',
+                    'KZ'
+                ].includes(code)
+            ){
+
+                label.classList.add(
+                    'big'
+                );
+
+            }
+
+
+            label.addEventListener(
+                'click',
+                ()=>{
+                    select(code,f);
+                }
+            );
+
+
+            svg.appendChild(label);
+
+        }
+
+    });
+
+
+    paint();
+
+}
+
+
+/* =====================================================
+   ЦВЕТ СТРАН
+===================================================== */
+
+function paint(){
+
+    document
+        .querySelectorAll('.country')
+        .forEach(p=>{
+
+            p.classList.remove(
+                'mine',
+                'busy'
+            );
+
+
+            if(
+                game.country
+                &&
+                p.dataset.code===
+                game.country
+            ){
+
+                p.classList.add(
+                    'mine'
+                );
+
+            }
+
+            else if(
+                game.countries[
+                    p.dataset.code
+                ]?.president
+            ){
+
+                p.classList.add(
+                    'busy'
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =====================================================
+   ВЫБОР СТРАНЫ
+===================================================== */
+
+function select(code,f){
+
+    let c =
+        countryData(
+            code,
+            f
+        );
+
+
+    selected=code;
+
+
+    document.getElementById('cname')
+        .textContent=
+        c.name;
+
+
+    document.getElementById('ccode')
+        .textContent=
+        'ISO: '+code;
+
+
+    document.getElementById('cpres')
+        .textContent=
+        c.president
+        ||
+        'Свободно';
+
+
+    document.getElementById('cmoney')
+        .textContent=
+        cash(c.money);
+
+
+    document.getElementById('cpop')
+        .textContent=
+        fmt(c.population);
+
+
+    document.getElementById('chappy')
+        .textContent=
+        c.happiness+'%';
+
+
+    let b =
+        document.getElementById(
+            'claim'
+        );
+
+
+    b.disabled =
+        !!c.president;
+
+
+    b.textContent =
+        c.president
+        ?
+        '🔒 Президент уже есть'
+        :
+        '👑 Стать президентом';
+
+
+    document.getElementById('info')
+        .classList.add('show');
+
+
+    paint();
+
+    save();
+
+}
+
+
+/* =====================================================
+   СКРЫТЬ ИНФО
+===================================================== */
+
+function hideInfo(){
+
+    document
+        .getElementById('info')
+        .classList
+        .remove('show');
+
+}
+
+
+/* =====================================================
+   СТАТЬ ПРЕЗИДЕНТОМ
+===================================================== */
+
+function claimPresident(){
+
+    if(!selected)return;
+
+
+    if(!game.name){
+
+        hideInfo();
+
+        return startGame();
+
+    }
+
+
+    let c =
+        game.countries[selected];
+
+
+    if(c.president){
+
+        return alert(
+            'У этой страны уже есть президент.'
+        );
+
+    }
+
+
+    if(
+        game.country
+        &&
+        game.country!==selected
+    ){
+
+        return alert(
+            'В этой версии один игрок '+
+            'управляет только одной страной.'
+        );
+
+    }
+
+
+    c.president =
+        game.name;
+
+
+    c.owner =
+        game.name;
+
+
+    game.country =
+        selected;
+
+
+    game.role =
+        'president';
+
+
+    game.money =
+        c.money;
+
+
+    game.happy =
+        c.happiness;
+
+
+    game.rating=5;
+
+
+    alert(
+        '👑 Ты стал президентом '+
+        c.name+'!'
+    );
+
+
+    save();
+
+    ui();
+
+    select(
+        selected,
+        geo.features.find(
+            f=>featureCode(f)===selected
+        )
+    );
+
+    paint();
+
+}
+
+
+/* =====================================================
+   ДЕНЬ
+===================================================== */
+
+function nextDay(){
+
+    if(!game.country){
+
+        return alert(
+            'Сначала выбери свободную страну '+
+            'и стань президентом.'
+        );
+
+    }
+
+
+    let c =
+        game.countries[
+            game.country
+        ];
+
+
+    let income =
+        Math.max(
+            10000,
+            Math.floor(
+                c.population/1000
+            )
+        );
+
+
+    income +=
+        c.factories.food*5000;
+
+
+    income +=
+        c.factories.car*15000;
+
+
+    income +=
+        c.factories.military*20000;
+
+
+    let expense =
+        50000;
+
+
+    expense +=
+        c.factories.water*5000;
+
+
+    expense +=
+        c.factories.electricity*7000;
+
+
+    expense +=
+        c.factories.military*15000;
+
+
+    game.money +=
+        income-expense;
+
+
+    c.money =
+        game.money;
+
+
+    game.income =
+        income;
+
+
+    game.expense =
+        expense;
+
+
+    /*
+       Потребление
+    */
+
+    game.res.food =
+        Math.max(
+            0,
+            game.res.food -
+            Math.max(
+                1,
+                Math.ceil(
+                    c.population/10000000
+                )
+            )
+        );
+
+
+    game.res.water =
+        Math.max(
+            0,
+            game.res.water-2
+        );
+
+
+    /*
+       Счастье
+    */
+
+    game.happy =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                game.happy
+                +
+                (
+                    game.res.food<20
+                    ? -4
+                    : 1
+                )
+                +
+                (
+                    game.res.water<20
+                    ? -3
+                    : 0
+                )
+            )
+        );
+
+
+    /*
+       Рейтинг
+    */
+
+    if(game.happy<40){
+
+        game.rating =
+            Math.max(
+                0,
+                game.rating-1
+            );
+
+    }
+
+
+    c.happiness =
+        game.happy;
+
+
+    c.rating =
+        game.rating;
+
+
+    game.day++;
+
+
+    /*
+       Президент потерял власть
+    */
+
+    if(game.rating===0){
+
+        c.president=null;
+
+        c.owner=null;
+
+        game.country=null;
+
+        game.role='citizen';
+
+
+        alert(
+            '⚠️ Рейтинг 0/5.\n\n'+
+            'Ты потерял пост президента.'
+        );
+
+    }
+
+    else{
+
+        alert(
+            '🌅 День '+game.day+
+            ' завершён.\n\n'+
+
+            'Доход: '+
+            cash(income)+
+
+            '\nРасходы: '+
+            cash(expense)+
+
+            '\nСчастье: '+
+            game.happy+'%'
+        );
+
+    }
+
+
+    save();
+
+    ui();
+
+    paint();
+
+}
+
+
+/* =====================================================
+   ЭКОНОМИКА
+===================================================== */
+
+function economy(){
+
+    show(`
+
+        <h2>💰 Экономика</h2>
+
+        <div class="row">
+            <span>Бюджет</span>
+            <b>${cash(game.money)}</b>
+        </div>
+
+        <div class="row">
+            <span>Доход/день</span>
+            <b>${cash(game.income)}</b>
+        </div>
+
+        <div class="row">
+            <span>Расходы/день</span>
+            <b>${cash(game.expense)}</b>
+        </div>
+
+        <p class="muted">
+            Доход и расходы пересчитываются
+            каждый игровой день.
+        </p>
+
+    `);
+
+}
+
+
+/* =====================================================
+   ЗАВОДЫ
+===================================================== */
+
+function factories(){
+
+    if(!game.country){
+
+        return alert(
+            'Сначала стань президентом.'
+        );
+
+    }
+
+
+    let f =
+        game.countries[
+            game.country
+        ].factories;
+
+
+    let list=[
+
+        ['water',
+        '💧 Водозавод',
+        100000],
+
+        ['electricity',
+        '⚡ Электростанция',
+        150000],
+
+        ['oil',
+        '🛢️ Нефтяной завод',
+        500000],
+
+        ['stone',
+        '🪨 Каменный завод',
+        100000],
+
+        ['wood',
+        '🌲 Лесная промышленность',
+        80000],
+
+        ['food',
+        '🥫 Пищевой завод',
+        120000],
+
+        ['steel',
+        '🔩 Металлургия',
+        300000],
+
+        ['aluminum',
+        '⚙️ Алюминий',
+        400000],
+
+        ['fuel',
+        '⛽ Топливо',
+        500000],
+
+        ['car',
+        '🚗 Автозавод',
+        1000000],
+
+        ['military',
+        '🪖 Военный завод',
+        2000000],
+
+        ['aviation',
+        '🚁 Авиационный завод',
+        3000000]
+
+    ];
+
+
+    show(`
+
+        <h2>🏭 Заводы</h2>
+
+        <p class="muted">
+            Промышленность государства.
+        </p>
+
+        <div class="factoryGrid">
+
+            ${
+                list.map(x=>`
+
+                    <div class="factory">
+
+                        <b>
+                            ${x[1]}
+                        </b>
+
+                        <small>
+                            Уровень:
+                            ${f[x[0]]}
+                        </small>
+
+                        <button
+                            class="action"
+                            onclick="
+                                build(
+                                    '${x[0]}',
+                                    ${x[2]}
+                                )
+                            "
+                        >
+                            Построить
+                            ${cash(x[2])}
+                        </button>
+
+                    </div>
+
+                `).join('')
+            }
+
+        </div>
+
+    `);
+
+}
+
+
+/* =====================================================
+   СТРОИТЕЛЬСТВО
+===================================================== */
+
+function build(type,cost){
+
+    let c =
+        game.countries[
+            game.country
+        ];
+
+
+    if(game.money<cost){
+
+        return alert(
+            'Недостаточно денег: '+
+            cash(cost)
+        );
+
+    }
+
+
+    /*
+       Электричество
+    */
+
+    if(
+        [
+            'steel',
+            'aluminum',
+            'fuel',
+            'car',
+            'military',
+            'aviation'
+        ].includes(type)
+        &&
+        fLevel('electricity')<1
+    ){
+
+        return alert(
+            '❌ Сначала нужна электростанция.'
+        );
+
+    }
+
+
+    /*
+       Нефть
+    */
+
+    if(
+        [
+            'fuel',
+            'military',
+            'car'
+        ].includes(type)
+        &&
+        game.res.oil<10
+    ){
+
+        return alert(
+            '❌ Нужна нефть.'
+        );
+
+    }
+
+
+    game.money -=
+        cost;
+
+
+    c.money =
+        game.money;
+
+
+    c.factories[type]++;
+
+
+    save();
+
+    ui();
+
+    factories();
+
+}
+
+
+function fLevel(t){
+
+    return game
+        .countries[
+            game.country
+        ]
+        .factories[t]
+        ||
+        0;
+
+}
+
+
+/* =====================================================
+   МЕРОПРИЯТИЯ
+===================================================== */
+
+function events(){
+
+    if(!game.country){
+
+        return alert(
+            'Сначала стань президентом.'
+        );
+
+    }
+
+
+    show(`
+
+        <h2>🎉 Мероприятия</h2>
+
+        <p class="muted">
+            Забота о населении повышает
+            счастье и рейтинг президента.
+        </p>
+
+        <button
+            class="action"
+            onclick="eventDo(50000,8)"
+        >
+            ⚽ Футбол — $50 000
+        </button>
+
+        <button
+            class="action"
+            onclick="eventDo(80000,10)"
+        >
+            🎤 Концерт — $80 000
+        </button>
+
+        <button
+            class="action"
+            onclick="eventDo(120000,15)"
+        >
+            🎆 Фестиваль — $120 000
+        </button>
+
+        <button
+            class="action"
+            onclick="eventDo(70000,7)"
+        >
+            🏆 Турнир — $70 000
+        </button>
+
+    `);
+
+}
+
+
+function eventDo(cost,h){
+
+    if(game.money<cost){
+
+        return alert(
+            'Недостаточно денег.'
+        );
+
+    }
+
+
+    game.money -=
+        cost;
+
+
+    game.happy =
+        Math.min(
+            100,
+            game.happy+h
+        );
+
+
+    game.rating =
+        Math.min(
+            5,
+            game.rating+1
+        );
+
+
+    game.countries[
+        game.country
+    ].money =
+        game.money;
+
+
+    game.countries[
+        game.country
+    ].happiness =
+        game.happy;
+
+
+    save();
+
+    ui();
+
+    closeModal();
+
+
+    alert(
+        '🎉 Мероприятие проведено!\n\n'+
+        'Счастье +'+h+
+        '\nРейтинг +1'
+    );
+
+}
+
+
+/* =====================================================
+   АРМИЯ
+===================================================== */
+
+function army(){
+
+    if(!game.country){
+
+        return alert(
+            'Сначала стань президентом.'
+        );
+
+    }
+
+
+    let f =
+        game.countries[
+            game.country
+        ].factories;
+
+
+    show(`
+
+        <h2>🪖 Армия</h2>
+
+        <div class="row">
+            <span>
+                Военные заводы
+            </span>
+
+            <b>
+                ${f.military}
+            </b>
+        </div>
+
+        <div class="row">
+            <span>
+                Авиационные заводы
+            </span>
+
+            <b>
+                ${f.aviation}
+            </b>
+        </div>
+
+        <p class="muted">
+            Военная система будет работать
+            через игровые показатели армии.
+        </p>
+
+    `);
+
+}
+
+
+/* =====================================================
+   ZOOM
+===================================================== */
+
+function zoom(v){
+
+    scale =
+        Math.max(
+            .7,
+            Math.min(
+                4,
+                scale*v
+            )
+        );
+
+
+    draw();
+
+}
+
+
+function resetZoom(){
+
+    scale=1;
+
+    offsetX=0;
+
+    offsetY=0;
+
+    draw();
+
+}
+
+
+/* =====================================================
+   ЗАГРУЗКА КАРТЫ
+===================================================== */
+
+async function loadMap(){
+
+    try{
+
+        let r =
+            await fetch(
+                MAP_URL
+            );
+
+
+        if(!r.ok){
+
+            throw Error(
+                'HTTP '+r.status
+            );
+
+        }
+
+
+        geo =
+            await r.json();
+
+
+        document
+            .getElementById('loading')
+            .style.display='none';
+
+
+        draw();
+
+        ui();
+
+    }
+
+    catch(e){
+
+        document
+            .getElementById('loading')
+            .querySelector('b')
+            .textContent=
+            'Карта не загрузилась';
+
+
+        document
+            .getElementById('loadError')
+            .textContent=
+            'Ошибка: '+e.message+
+            ' — проверь интернет и обнови страницу.';
+
+
+        console.error(e);
+
+    }
+
+}
+
+
+/* =====================================================
+   СТАРТ
+===================================================== */
+
+ui();
+
+loadMap();
+
+</script>
+
+</body>
+</html>
